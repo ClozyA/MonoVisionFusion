@@ -49,6 +49,19 @@ def fuse_images(img1, img2, M):
     fused_image = cv2.addWeighted(warped_img1, 0.5, img2, 0.5, 0)
     return fused_image
 
+
+# 4. 图像融合 (去掉遮罩)
+def fuse_images_without_mask(img1, img2, M):
+    # 获取img2的尺寸
+    h, w, _ = img2.shape
+    # 对img1进行透视变换
+    warped_img1 = cv2.warpPerspective(img1, M, (w, h))
+
+    # 创建无遮罩的融合图像
+    fused_image = np.where(warped_img1 > 0, warped_img1, img2)
+    return fused_image
+
+
 # 主流程
 def main():
     folder_path = "./pic"
@@ -70,14 +83,17 @@ def main():
 
     # 图像融合
     fused_image = fuse_images(img1, img2, M)
+    fused_image_without_mask = fuse_images_without_mask(img1, img2, M)
 
     # 显示结果
     cv2.imshow("Image 1", img1)
     cv2.imshow("Image 2", img2)
-    cv2.imshow("Fused Image", fused_image)
+    cv2.imshow("Fused Image with Mask", fused_image)
+    cv2.imshow("Fused Image without Mask", fused_image_without_mask)
 
     # 保存结果
     cv2.imwrite("./fused_image.jpg", fused_image)
+    cv2.imwrite("./fused_image_without_mask.jpg", fused_image_without_mask)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
